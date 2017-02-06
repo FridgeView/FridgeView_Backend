@@ -15,7 +15,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
 	var photoObject = req.object;
 	var imageString = photoObject.get("encryptString");
 	//imageString.replace(/^\s+|\s+$/g, '');
-	imageString = imageString.slice(0,-1); // removing last character from strings
+	imageString = imageString.replace(/\r?\n|\r/g, " ");
 	console.log("got base64 image: " + imageString);
 
 	console.log("Predicting...");
