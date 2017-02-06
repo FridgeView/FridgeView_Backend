@@ -21,7 +21,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
 	console.log("got base64 image: " + imageString);
 
 	console.log("Predicting...");
-	app.models.predict(Clarifai.FOOD_MODEL, {base64: imageString}).then(
+	app.models.predict(Clarifai.GENERAL_MODEL, {base64: imageString}).then(
     	function(response) {
       		console.log("Found something!");
       		console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
