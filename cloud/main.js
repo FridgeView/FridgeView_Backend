@@ -15,7 +15,7 @@ Parse.Cloud.define('hello', function(req, res) {
 
 // });
 
-Parse.Cloud.beforeSave("Photo", function(req, res) {
+Parse.Cloud.beforeSave("Photos", function(req, res) {
 	var photoObject = req.object;
 	var imageString = photoObject.get("encryptString");
 	console.log("got base64 image: " + imageString);
