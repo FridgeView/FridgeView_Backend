@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "clarifai": "^2.1.2-dev",
     "express": "~4.11.x",
     "kerberos": "~0.0.x",
     "parse": "~1.8.0",
