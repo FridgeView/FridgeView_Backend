@@ -47,6 +47,7 @@ Parse.Cloud.define('searchInFoodItem', function(req, res) {
 
         FoodItem.set("id", ids_detected[i]);
         foodItem.set("name", idswithNames[ids_detected[i]]);
+        objectsToSave.push(foodItem);
       }
 
       /*** (4): Submitting query to save ***/
@@ -66,7 +67,7 @@ Parse.Cloud.define('searchInFoodItem', function(req, res) {
 
 
   });
-  
+
 });
 
 Parse.Cloud.beforeSave("Photos", function(req, res) {
