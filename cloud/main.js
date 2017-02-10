@@ -84,7 +84,14 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
         function(response) {
             console.log("Found something!");
             //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
-            Parse.Cloud.Run('searchInFoodItem', {"APIresponse": response.outputs[0].concepts});
+            Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0].concepts}, {
+              success: function(res) {
+                console.log("successfully called function");
+              },
+              error: function(err) {
+                console.log("err: Parse.Cloud.run");
+              }
+            });
 
         },
         function(err) {
