@@ -52,17 +52,20 @@ Parse.Cloud.define('searchInFoodItem', function(req, res) {
 
       /*** (4): Submitting query to save ***/
       Parse.Object.saveAll(objectsToSave, {
-        success: function(res) {
+        success: function(succ) {
           console.log("Successfully saved new IDs");
+          res.success();
         },
         error: function(error) {
           console.log("err");
+          res.error();
         }
       });
 
     },
     error: function(error){
       console.log("error")
+      res.error();
     }
 
 
