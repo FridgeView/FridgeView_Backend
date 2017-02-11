@@ -5,37 +5,6 @@ var app = new Clarifai.App(
     'fCkpzb6ddxnr1Q7h6KwHhTNWp7IYUkff_Kf5g__B'
     );
 
-
-Parse.Cloud.define("demo", function(req, res) {
-
-  var arr = [];
-  var foodItemSubclass = Parse.Object.extend("FoodItem");
-  var foodItem1 = new foodItemSubclass();
-  var foodItem2 = new foodItemSubclass();
-  foodItem1.set("foodName", "Orange");
-  //foodItem1.set("id", "0fgr");
-  foodItem2.set("foodName", "Nothing");
-  //foodItem2.set("id", "042934t");
-
-  arr.push(foodItem1);
-  arr.push(foodItem2);
-
-  Parse.Object.saveAll(arr, {
-    useMasterKey: true,
-    success: function(succ) {
-      console.log("Added properly");
-      res.success(succ);
-    },
-    error: function(err) {
-      console.log("err: didnt add properly");
-      res.error(err);
-    }
-
-  });
-
-
-});
-
 /**
 ** @brief: search for a food item in FoodItem database
 ** If item does not exist, create one
@@ -56,13 +25,13 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
   console.log("IDs found by API: " + ids_detected.length);
 
   /*** (1): Searching for all ids that the Food API detected inside our FoodItem collection ***/
-  query.containedIn("id", ids_detected);
+  query.containedIn("clarifaiID", ids_detected);
   query.find({
     success: function(foodItemsFound){ // foodItemsFound: contains IDs of all of the IDs that were detected and are inside the database
 
       /*** (2): Removing all IDs that have been detected inside database from our ids_detected array ***/
       for(var i=0; i<foodItemsFound.length; i++) {
-        var elemToRemove = foodItemsFound[i].get("id");
+        var elemToRemove = foodItemsFound[i].get("clarifaiID");
         var indexToRemove = ids_detected.indexOf(elemToRemove);
 
         if(indexToRemove > -1)
