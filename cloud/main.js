@@ -6,6 +6,27 @@ var app = new Clarifai.App(
     );
 
 
+Parse.Cloud.define("demo", function(req, res) {
+
+  var foodItemSubclass = Parse.Object.extend("FoodItem");
+  var foodItem = new foodItemSubclass();
+  foodItem.set("foodName", "Apple");
+  foodItem.save(null, {
+
+    success: function(succ) {
+      console.log("Added properly");
+      res.success(succ);
+    },
+    error: function(err) {
+      console.log("err: didnt add properly");
+      res.error(err);
+    }
+
+  });
+
+
+});
+
 /**
 ** @brief: search for a food item in FoodItem database
 ** If item does not exist, create one
@@ -93,7 +114,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
         function(response) {
             console.log("Found something!");
             //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
-            Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
+            Parse.Cloud.run('demo', {"APIresponse": response.outputs[0]["data"].concepts}, {
               useMasterKey: true,
               success: function(res) {
                 console.log("successfully called function");
