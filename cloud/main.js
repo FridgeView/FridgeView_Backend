@@ -47,8 +47,10 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
       for(var i=0; i<ids_detected.length; i++) {
         
         var foodItem = new foodItemSubclass();
-        foodItem.set("id", ids_detected[i]);
-        foodItem.set("foodName", idsWithNames[ids_detected[i]]);
+        // foodItem.set("id", ids_detected[i]);
+        // foodItem.set("foodName", idsWithNames[ids_detected[i]]);
+        foodItem.set("id", "ids_detected[i]");
+        foodItem.set("foodName", "idsWithNames[ids_detected[i]])";
         objectsToSave.push(foodItem);
       }
 
@@ -81,7 +83,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
 
 	var photoObject = req.object;
 
-  if(photoObject.existed() == false) {
+  if(!photoObject.existed()) {
 
     var imageString = photoObject.get("encrypStr");
     imageString.replace(/\r?\n|\r/g, "");
