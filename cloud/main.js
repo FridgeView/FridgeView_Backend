@@ -45,7 +45,7 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
         var foodItemSubclass = Parse.Object.extend("FoodItem");
         var foodItem = new foodItemSubclass();
 
-        FoodItem.set("id", ids_detected[i]);
+        foodItem.set("id", ids_detected[i]);
         foodItem.set("name", idswithNames[ids_detected[i]]);
         objectsToSave.push(foodItem);
       }
