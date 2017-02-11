@@ -77,7 +77,7 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
       
       for(var i=0; i<ids_detected.length; i++) {
         var foodItem = new foodItemSubclass();
-        foodItem.set("id", ids_detected[i]);
+        foodItem.set("clarifaiID", ids_detected[i]);
         foodItem.set("foodName", idsWithNames[ids_detected[i]]);
         objectsToSave.push(foodItem);
       }
@@ -121,7 +121,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
         function(response) {
             console.log("Found something!");
             //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
-            Parse.Cloud.run('demo', {"APIresponse": response.outputs[0]["data"].concepts}, {
+            Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
               useMasterKey: true,
               success: function(res) {
                 console.log("successfully called function");
