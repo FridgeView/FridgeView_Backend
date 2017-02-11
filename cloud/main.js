@@ -25,7 +25,7 @@ Parse.Cloud.define('searchInFoodItem', function(req, res) {
 
   /*** (1): Searching for all ids that the Food API detected inside our FoodItem collection ***/
   query.containedIn("id", ids_detected);
-  query.findObject({
+  query.find({
     success: function(foodItemsFound){ // foodItemsFound: contains IDs of all of the IDs that were detected and are inside the database
 
       /*** (2): Removing all IDs that have been detected inside database from our ids_detected array ***/
