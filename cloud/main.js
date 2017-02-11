@@ -54,11 +54,13 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
           success: function(succ) {
             console.log("Successfully saved ID");
             res.success("done");
+            return;
           },
           error: function(error) {
             console.log("error while saving to DB");
             console.log(error);
             res.error(error);
+            return;
           }
         });
         objectsToSave.push(foodItem);
@@ -104,6 +106,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
             console.log("Found something!");
             //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
             Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
+              useMasterKey: true,
               success: function(res) {
                 console.log("successfully called function");
               },
