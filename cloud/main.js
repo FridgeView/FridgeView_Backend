@@ -49,36 +49,22 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
         var foodItem = new foodItemSubclass();
         foodItem.set("id", ids_detected[i]);
         foodItem.set("foodName", idsWithNames[ids_detected[i]]);
-        foodItem.save(null, {
-          useMasterKey: true,
-          success: function(succ) {
-            console.log("Successfully saved ID");
-            res.success("done");
-            return;
-          },
-          error: function(error) {
-            console.log("error while saving to DB");
-            console.log(error);
-            res.error(error);
-            return;
-          }
-        });
         objectsToSave.push(foodItem);
       }
 
-      // /*** (4): Submitting query to save ***/
-      // Parse.Object.saveAll(objectsToSave, {
-      //   useMasterKey: true,
-      //   success: function(succ) {
-      //     console.log("Successfully saved " + objectsToSave.length + " IDs");
-      //     res.success("done");
-      //   },
-      //   error: function(error) {
-      //     console.log("error while saving to DB");
-      //     console.log(error);
-      //     res.error(error);
-      //   }
-      // });
+      /*** (4): Submitting query to save ***/
+      Parse.Object.saveAll(objectsToSave, {
+        useMasterKey: true,
+        success: function(succ) {
+          console.log("Successfully saved " + objectsToSave.length + " IDs");
+          res.success("done");
+        },
+        error: function(error) {
+          console.log("error while saving to DB");
+          console.log(error);
+          res.error(error);
+        }
+      });
 
     },
     error: function(error){
@@ -95,7 +81,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
 
 	var photoObject = req.object;
 
-  if(!photoObject.existed()) {
+  if(photoObject.existed() == false) {
 
     var imageString = photoObject.get("encrypStr");
     imageString.replace(/\r?\n|\r/g, "");
