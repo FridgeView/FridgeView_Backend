@@ -18,7 +18,7 @@ Parse.Cloud.define("demo", function(req, res) {
     arr.push(foodItem);
   }
 
-  foodItem.saveAll(arr, {
+  Parse.Object.saveAll(arr, {
 
     success: function(succ) {
       console.log("Added properly");
