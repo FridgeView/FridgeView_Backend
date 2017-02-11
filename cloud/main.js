@@ -19,9 +19,11 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
 
   for(var i =0; i<req.params.length; i++) {
     ids_detected.push(req.params[i]["id"]);
-    idswithNames[req.params[i]["id"]] = req.params[i]["name"];
-    idswithNames[req.params[i]["id"]] = req.params[i]["value"];
+    idsWithNames[req.params[i]["id"]] = req.params[i]["name"];
+    idsWithProbabilities[req.params[i]["id"]] = req.params[i]["value"];
   }
+
+  console.log("IDs found by API: " + ids_detected.length);
 
   /*** (1): Searching for all ids that the Food API detected inside our FoodItem collection ***/
   query.containedIn("id", ids_detected);
@@ -38,7 +40,7 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
       }
 
       /* At this point, all elements inside ids_detected should be elements that needs to be added to the FoodItems collection */
-      
+      console.log("Number of IDs not in DB: " + ids_detected.length);
       /*** (3): Adding all new IDs to the database ***/
       var objectsToSave = [];
       for(var i=0; i<ids_detected.length; i++) {
