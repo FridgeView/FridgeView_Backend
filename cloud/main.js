@@ -8,10 +8,17 @@ var app = new Clarifai.App(
 
 Parse.Cloud.define("demo", function(req, res) {
 
+  var arr = [];
   var foodItemSubclass = Parse.Object.extend("FoodItem");
-  var foodItem = new foodItemSubclass();
-  foodItem.set("foodName", "Apple");
-  foodItem.save(null, {
+  
+  for(var i = 0; i<3; i++) {
+    var foodItem = new foodItemSubclass();
+    foodItem.set("foodName", "Orange");
+    foodItem.set("id", "0fgr");
+    arr.push(foodItem);
+  }
+
+  foodItem.saveAll(arr, {
 
     success: function(succ) {
       console.log("Added properly");
