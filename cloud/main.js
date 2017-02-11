@@ -72,9 +72,9 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
       /*** (3): Adding all new IDs to the database ***/
       var objectsToSave = [];
       var foodItemSubclass = Parse.Object.extend("FoodItem");
-      var foodItem = new foodItemSubclass();
+      
       for(var i=0; i<ids_detected.length; i++) {
-
+        var foodItem = new foodItemSubclass();
         foodItem.set("id", ids_detected[i]);
         foodItem.set("foodName", idsWithNames[ids_detected[i]]);
         if(objectsToSave.length == 0) {
