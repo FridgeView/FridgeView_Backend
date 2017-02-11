@@ -50,7 +50,7 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
         // foodItem.set("id", ids_detected[i]);
         // foodItem.set("foodName", idsWithNames[ids_detected[i]]);
         foodItem.set("id", "ids_detected[i]");
-        foodItem.set("foodName", "idsWithNames[ids_detected[i]])";
+        foodItem.set("foodName", "idsWithNames[ids_detected[i]]");
         objectsToSave.push(foodItem);
       }
 
