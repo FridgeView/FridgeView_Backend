@@ -10,7 +10,7 @@ var app = new Clarifai.App(
 ** @brief: search for a food item in FoodItem database
 ** If item does not exist, create one
 **/
-Parse.Cloud.define('searchInFoodItem', function(req, res) {
+Parse.Cloud.define("searchInFoodItem", function(req, res) {
   var query = new Parse.Query("FoodItem");
 
   var ids_detected = [];
@@ -54,18 +54,18 @@ Parse.Cloud.define('searchInFoodItem', function(req, res) {
       Parse.Object.saveAll(objectsToSave, {
         success: function(succ) {
           console.log("Successfully saved new IDs");
-          res.success();
+          res.success("done");
         },
         error: function(error) {
-          console.log("err");
-          res.error();
+          console.log(error);
+          res.error(error);
         }
       });
 
     },
     error: function(error){
-      console.log("error")
-      res.error();
+      console.log(error);
+      res.error(error);
     }
 
 
