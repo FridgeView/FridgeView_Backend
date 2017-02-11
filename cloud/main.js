@@ -47,17 +47,14 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
       for(var i=0; i<ids_detected.length; i++) {
         
         var foodItem = new foodItemSubclass();
-        console.log("ok");
         foodItem.set("id", ids_detected[i]);
-        foodItem.set("name", idsWithNames[ids_detected[i]]);
-        console.log("ok2");
+        foodItem.set("foodName", idsWithNames[ids_detected[i]]);
         objectsToSave.push(foodItem);
-        console.log("ok3");
       }
 
-      console.log("About to save " + objectsToSave.length + " elements to DB...");
       /*** (4): Submitting query to save ***/
       Parse.Object.saveAll(objectsToSave, {
+        useMasterKey: true,
         success: function(succ) {
           console.log("Successfully saved " + objectsToSave.length + " IDs");
           res.success("done");
