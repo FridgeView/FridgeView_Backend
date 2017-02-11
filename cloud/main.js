@@ -18,9 +18,9 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
   var idsWithProbabilities = {}; // mapping between id->probability of correctness (used for userFood class)
 
   for(var i =0; i<req.params.length; i++) {
-    ids_detected.push(req.params[i]["id"]);
-    idsWithNames[req.params[i]["id"]] = req.params[i]["name"];
-    idsWithProbabilities[req.params[i]["id"]] = req.params[i]["value"];
+    ids_detected.push(req.params.APIresponse[i]["id"]);
+    idsWithNames[req.params.APIresponse[i]["id"]] = req.params.APIresponse[i]["name"];
+    idsWithProbabilities[req.params.APIresponse[i]["id"]] = req.params.APIresponse[i]["value"];
   }
 
   console.log("IDs found by API: " + ids_detected.length);
