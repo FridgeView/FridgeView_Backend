@@ -76,6 +76,30 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
 
 });
 
+//MARK: beforeSave Functions 
+Parse.Cloud.beforeSave("SensorData", function(req, res) {
+  var sensorDataObject = req.object;
+  var sensorDataQuery = new Parse.Query("SensorData")
+  console.log("new sensor data!")
+  console.log(sensorDataObject.get("user"))
+  console.log("ID")
+  console.log(rsensorDataObject.get("user").id)
+  console.log("sensor cube id")
+  console.log(sensorDataObject.get("sensorCubeID"))
+  sensorDataQuery.equalTo("user", req.params.user)
+  sensorDataQuery.equalTo("sensorCubeID", req.params.sensorCubeID)
+  sensorDataQuery.find({
+    success: function(previousSensorDatas) {
+        Parse.Object.destroyAll(previousSensorDatas);
+      },
+      error: function(error) {
+        console.log("error finding sensor data");
+      }
+  })
+
+  res.success();
+})
+
 Parse.Cloud.beforeSave("Photos", function(req, res) {
 
 	var photoObject = req.object;
