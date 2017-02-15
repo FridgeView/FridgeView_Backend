@@ -76,6 +76,62 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
 
 });
 
+Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
+  var query = new Parse.Query("FoodItem");
+
+  var userID = req.params.userID;
+  var ids_detected = []; // stores all of the IDs that have been detected by API
+
+  for(var i=0; i<req.params.APIresponse.length; i++) {
+    ids_detected.push(req.params.APIresponse[i]["id"]);
+  }
+
+  /*** (1): Searching for all ids that the Food API detected inside our FoodItem collection ***/
+  query.containedIn("clarifaiID", ids_detected);
+  query.find({
+    success: function(foodItemsFound) {
+
+      if(foodItemsFound.length == req.params.APIresponse.length) {
+        console.log("All Items were added to the FoodItems Collection :)");
+      }
+      else {
+        console.log("Some items are missing in the FoodItems Collection - this should not happen :(");
+      }
+
+      var objectsToSave = [];
+      var userFoodItemSubclass = Parse.Object.extend("UserFoodItem");
+      for(var i=0; i<foodItemsFound.length; i++) {
+        var userFoodItem = new userFoodItemSubclass();
+        var userPointer = {__type: 'Pointer', className: '_User', objectId: userID}
+        var foodItemPointer = {__type: 'Pointer', className: 'FoodItem', objectId: foodItemsFound[i].id} // NOT SURE
+
+        userFoodItem.set("foodItem", foodItemPointer);
+        userFoodItem.set("user", userPointer);
+        // userFoodItem.set("probability", add something in here to find probability); // TODO
+        objectsToSave.push(userFoodItem);
+      }
+
+      Parse.Object.saveAll(objectsToSave, {
+        useMasterKey: true,
+        success: function(succ) {
+          console.log("Successfully saved " + objectsToSave.length + " IDs");
+          res.success("done");
+        },
+        error: function(error) {
+          console.log("error while saving to DB");
+          console.log(error);
+          res.error(error);
+        }
+      });
+    },
+    error: function(error) {
+      console.log(error);
+      res.error(error);
+    }
+  });
+
+});
+
 //MARK: afterSave and beforeSave Functions 
 
 Parse.Cloud.afterSave("SensorData", function(req, res) {
@@ -97,7 +153,7 @@ Parse.Cloud.afterSave("SensorData", function(req, res) {
       }
   })
   res.success();
-})
+});
 
 Parse.Cloud.beforeSave("Photos", function(req, res) {
 
@@ -116,7 +172,18 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
             Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
               useMasterKey: true,
               success: function(res) {
-                console.log("successfully called function");
+                console.log("successfully called searchInFoodItem method");
+
+                Parse.Cloud.run('saveToUsersFoodItem', [{"APIresponse": response.outputs[0]["data"].concepts}, {"userID": photoObject.get("user").id}], {
+                  useMasterKey: true,
+                  success: function(res) {
+                    console.log("Successfully called method saveToUsersFoodItem");
+                  }, 
+                  error: function(err) {
+                    console.log("Error while calling function saveToUsersFoodItem");
+                  }
+                });
+
               },
               error: function(err) {
                 console.log("err: Parse.Cloud.run");
