@@ -76,9 +76,9 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
 
 });
 
-//MARK: beforeSave Functions 
+//MARK: afterSave and beforeSave Functions 
 
-Parse.Cloud.beforeSave("SensorData", function(req, res) {
+Parse.Cloud.afterSave("SensorData", function(req, res) {
   var sensorDataObject = req.object;
   console.log("new sensor data")
   console.log(req.object.id)
@@ -96,7 +96,6 @@ Parse.Cloud.beforeSave("SensorData", function(req, res) {
         console.log("error finding sensor data");
       }
   })
-
   res.success();
 })
 
