@@ -77,13 +77,16 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
 });
 
 //MARK: beforeSave Functions 
+
 Parse.Cloud.beforeSave("SensorData", function(req, res) {
   var sensorDataObject = req.object;
+  console.log("new sensor data")
+  console.log(req.object.id)
   var sensorDataQuery = new Parse.Query("SensorData")
   var userPointer = {__type: 'Pointer', className: '_User', objectId: sensorDataObject.get("user").id}
   sensorDataQuery.equalTo("user", userPointer)
   sensorDataQuery.equalTo("sensorCubeID", sensorDataObject.get("sensorCubeID"))
-  sensorDataQuery.notEqualTo("objectId", sensorDataObject.get("objectId"))
+  sensorDataQuery.notEqualTo("objectId", req.object.id)
   sensorDataQuery.find({
     success: function(previousSensorDatas) {
         console.log("found prev data:" + previousSensorDatas.length)
