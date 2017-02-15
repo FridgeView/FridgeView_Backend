@@ -83,7 +83,7 @@ Parse.Cloud.beforeSave("SensorData", function(req, res) {
   console.log("new sensor data!")
   console.log(sensorDataObject.get("user"))
   console.log("ID")
-  console.log(rsensorDataObject.get("user").id)
+  console.log(sensorDataObject.get("user").id)
   console.log("sensor cube id")
   console.log(sensorDataObject.get("sensorCubeID"))
   sensorDataQuery.equalTo("user", req.params.user)
