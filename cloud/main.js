@@ -86,8 +86,8 @@ Parse.Cloud.beforeSave("SensorData", function(req, res) {
   console.log(sensorDataObject.get("user").id)
   console.log("sensor cube id")
   console.log(sensorDataObject.get("sensorCubeID"))
-  sensorDataQuery.equalTo("user", req.params.user)
-  sensorDataQuery.equalTo("sensorCubeID", req.params.sensorCubeID)
+  sensorDataQuery.equalTo("user", sensorDataObject.get("user"))
+  sensorDataQuery.equalTo("sensorCubeID", sensorDataObject.get("sensorCubeID"))
   sensorDataQuery.find({
     success: function(previousSensorDatas) {
         Parse.Object.destroyAll(previousSensorDatas);
