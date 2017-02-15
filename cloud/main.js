@@ -91,7 +91,7 @@ Parse.Cloud.beforeSave("SensorData", function(req, res) {
   sensorDataQuery.equalTo("objectId", sensorDataObject.id)
   sensorDataQuery.find({
     success: function(previousSensorDatas) {
-        console.log("found prev data:" previousSensorDatas.length)
+        console.log("found prev data:" + previousSensorDatas.length)
         Parse.Object.destroyAll(previousSensorDatas);
       },
       error: function(error) {
