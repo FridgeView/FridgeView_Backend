@@ -174,7 +174,7 @@ Parse.Cloud.beforeSave("Photos", function(req, res) {
               success: function(res) {
                 console.log("successfully called searchInFoodItem method");
 
-                Parse.Cloud.run('saveToUsersFoodItem', [{"APIresponse": response.outputs[0]["data"].concepts}, {"userID": photoObject.get("user").id}], {
+                Parse.Cloud.run('saveToUsersFoodItem', {"APIresponse": response.outputs[0]["data"].concepts, "userID": photoObject.get("user").id}, {
                   useMasterKey: true,
                   success: function(res) {
                     console.log("Successfully called method saveToUsersFoodItem");
