@@ -110,8 +110,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 
         userFoodItem.set("foodItem", foodItemPointer);
         userFoodItem.set("user", userPointer);
-        userFoodItem.set("probability", 1); // TODO
-        console.log("PROBABILITY IS: " + proba + "**************");
+        userFoodItem.set("probability", proba); // TODO
         objectsToSave.push(userFoodItem);
       }
 
