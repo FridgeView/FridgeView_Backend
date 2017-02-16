@@ -81,9 +81,11 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 
   var userID = req.params.userID;
   var ids_detected = []; // stores all of the IDs that have been detected by API
+  var idsWithProbabilities = {}; // mapping between id->probability of correctness (used for userFood class)
 
-  for(var i=0; i<req.params.APIresponse.length; i++) {
+  for(var i =0; i<req.params.APIresponse.length; i++) {
     ids_detected.push(req.params.APIresponse[i]["id"]);
+    idsWithProbabilities[req.params.APIresponse[i]["id"]] = req.params.APIresponse[i]["value"];
   }
 
   /*** (1): Searching for all ids that the Food API detected inside our FoodItem collection ***/
@@ -104,10 +106,11 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
         var userFoodItem = new userFoodItemSubclass();
         var userPointer = {__type: 'Pointer', className: '_User', objectId: userID}
         var foodItemPointer = {__type: 'Pointer', className: 'FoodItem', objectId: foodItemsFound[i].id} // NOT SURE
+        var proba = idsWithProbabilities[foodItemsFound[i].id];
 
         userFoodItem.set("foodItem", foodItemPointer);
         userFoodItem.set("user", userPointer);
-        // userFoodItem.set("probability", add something in here to find probability); // TODO
+        userFoodItem.set("probability", proba); // TODO
         objectsToSave.push(userFoodItem);
       }
 
