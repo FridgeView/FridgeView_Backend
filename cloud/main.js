@@ -106,7 +106,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
         var userFoodItem = new userFoodItemSubclass();
         var userPointer = {__type: 'Pointer', className: '_User', objectId: userID}
         var foodItemPointer = {__type: 'Pointer', className: 'FoodItem', objectId: foodItemsFound[i].id} // NOT SURE
-        var proba = idsWithProbabilities[foodItemsFound[i]["id"]];
+        var proba = idsWithProbabilities[foodItemsFound[i].get("clarifaiID")];
 
         userFoodItem.set("foodItem", foodItemPointer);
         userFoodItem.set("user", userPointer);
