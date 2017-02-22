@@ -140,15 +140,13 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 Parse.Cloud.afterSave("SensorData", function(req, res) {
   var sensorDataObject = req.object;
   console.log("new sensor data")
-  console.log(req.object.id)
   var sensorDataQuery = new Parse.Query("SensorData")
-  var userPointer = {__type: 'Pointer', className: '_User', objectId: sensorDataObject.get("user").id}
-  sensorDataQuery.equalTo("user", userPointer)
-  sensorDataQuery.equalTo("sensorCubeID", sensorDataObject.get("sensorCubeID"))
+  var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: sensorDataObject.get("cube")}
+  sensorDataQuery.equalTo("cube", cubePointer)
   sensorDataQuery.notEqualTo("objectId", req.object.id)
   sensorDataQuery.find({
     success: function(previousSensorDatas) {
-        console.log("found prev data:" + previousSensorDatas.length)
+      console.log("found prev item!");
         Parse.Object.destroyAll(previousSensorDatas);
       },
       error: function(error) {
