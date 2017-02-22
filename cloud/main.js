@@ -12,6 +12,8 @@ Parse.Cloud.define("newSensorData", function(req,res){
     console.log(req.params.humidity);
     console.log(req.params.cubeID);
     console.log(req.params.battery);
+
+    res.success("success");
 })
 
 /**
