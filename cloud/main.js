@@ -6,7 +6,7 @@ var app = new Clarifai.App(
     );
 
 
-//Mark cloud hooks for Central Hub
+//MARK: cloud hooks for New Sensor Data 
 Parse.Cloud.define("newSensorData", function(req,res){
     console.log(req.params.temperature);
     console.log(req.params.humidity);
@@ -16,6 +16,34 @@ Parse.Cloud.define("newSensorData", function(req,res){
     res.success("success");
 })
 
+
+//MARK: cloud hooks for fetch sensor cubes for a specific central hub
+Parse.Cloud.define("fetchSensorCubes", function(req,res){
+    var query = new Parse.Query("Cube")
+    query.equalTo("deviceType", 2) //Sensor Cube 
+
+    //Pointer to the Centrla Hub
+    console.log(req.params.centralHubId)
+    var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubId}
+    query.equalTo("centralHub", centralHubPointer);
+
+    sensorMACAddress = [];
+
+    query.find({
+      success:function(sensorCubes){
+        console.log("found" + sensorCubes.length + "cubes!")
+        for(var i =0; i < sensorCubes.length; i++) {
+            var macAddress = sensorCubes[i].get("macAddress");
+            sensorMACAddress.push(macAddress)
+        }
+        res.success(sensorMACAddress)
+      }, 
+      error: function(error) {
+        console.log("erroring fetching sensor cubes for hub " + req.params.centralHubId)
+        res.success();
+      }
+    })
+})
 /**
 ** @brief: search for a food item in FoodItem database
 ** If item does not exist, create one
