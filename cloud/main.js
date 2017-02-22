@@ -5,6 +5,15 @@ var app = new Clarifai.App(
     'fCkpzb6ddxnr1Q7h6KwHhTNWp7IYUkff_Kf5g__B'
     );
 
+
+//Mark cloud hooks for Central Hub
+Parse.Cloud.define("newSensorData", function(req,res){
+    console.log(req.params.temperature);
+    console.log(req.params.humidity);
+    console.log(req.params.cubeID);
+    console.log(req.params.battery);
+})
+
 /**
 ** @brief: search for a food item in FoodItem database
 ** If item does not exist, create one
@@ -138,21 +147,21 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 //MARK: afterSave and beforeSave Functions 
 
 Parse.Cloud.afterSave("SensorData", function(req, res) {
-  var sensorDataObject = req.object;
-  console.log("new sensor data")
-  var sensorDataQuery = new Parse.Query("SensorData")
-  var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: sensorDataObject.get("cube")}
-  sensorDataQuery.equalTo("cube", cubePointer)
-  sensorDataQuery.notEqualTo("objectId", req.object.id)
-  sensorDataQuery.find({
-    success: function(previousSensorDatas) {
-      console.log("found prev item!");
-        Parse.Object.destroyAll(previousSensorDatas);
-      },
-      error: function(error) {
-        console.log("error finding sensor data");
-      }
-  })
+  // var sensorDataObject = req.object;
+  // console.log("new sensor data")
+  // var sensorDataQuery = new Parse.Query("SensorData")
+  // var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: sensorDataObject.get("cube")}
+  // sensorDataQuery.equalTo("cube", cubePointer)
+  // sensorDataQuery.notEqualTo("objectId", req.object.id)
+  // sensorDataQuery.find({
+  //   success: function(previousSensorDatas) {
+  //     console.log("found prev item!");
+  //       Parse.Object.destroyAll(previousSensorDatas);
+  //     },
+  //     error: function(error) {
+  //       console.log("error finding sensor data");
+  //     }
+  // })
   res.success();
 });
 
