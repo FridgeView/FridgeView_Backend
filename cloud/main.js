@@ -19,7 +19,7 @@ Parse.Cloud.define("newSensorData", function(req,res){
         previousSensorData.set("humidity",req.params.humidity)
         previousSensorData.set("temperature",req.params.temperature)
         previousSensorData.set("battery",req.params.battery)
-        previousSensorData.save(null {
+        previousSensorData.save(null, {
           success:function(success){
             res.success("saved")
           },
@@ -36,7 +36,7 @@ Parse.Cloud.define("newSensorData", function(req,res){
         sensorData.set("humidity",req.params.humidity)
         sensorData.set("temperature",req.params.temperature)
         sensorData.set("battery",req.params.battery)
-        sensorData.save(null {
+        sensorData.save(null, {
           success:function(success){
             res.success("saved")
           },
