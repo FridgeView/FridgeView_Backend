@@ -217,9 +217,7 @@ Parse.Cloud.afterSave("SensorData", function(req, res) {
   if(!sensorDataObject.existed()) {
     //New Sensor Data 
     var cubeQuery = new Parse.Query("Cube")
-    console.log(sensorDataObject.get("cube"))
-    console.log(sensorDataObject.get("cube").id)
-    cubeQuery.equalTo("cube", sensorDataObject.get("cube").id)
+    cubeQuery.equalTo("objectId", sensorDataObject.get("cube").id)
     cubeQuery.find({
       success: function(cubes) {
           if(cubes.length > 0){
