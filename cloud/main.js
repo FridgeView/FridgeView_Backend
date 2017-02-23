@@ -232,8 +232,9 @@ Parse.Cloud.afterSave("SensorData", function(req, res) {
         error: function(error) {
           console.log("error finding cube");
         }
-   }
-  res.success();
+     })
+  }
+    res.success("success")
 });
 
 // Parse.Cloud.beforeSave("Photos", function(req, res) {
