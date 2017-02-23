@@ -36,6 +36,7 @@ Parse.Cloud.define("newSensorData", function(req,res){
         sensorData.set("humidity",req.params.humidity)
         sensorData.set("temperature",req.params.temperature)
         sensorData.set("battery",req.params.battery)
+        sensorData.set("cube",cubePointer)
         sensorData.save(null, {
           success:function(success){
             res.success("saved")
