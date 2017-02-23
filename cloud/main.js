@@ -6,44 +6,80 @@ var app = new Clarifai.App(
     );
 
 
-//MARK: cloud hooks for New Sensor Data 
+//MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
 Parse.Cloud.define("newSensorData", function(req,res){
-    console.log(req.params.temperature);
-    console.log(req.params.humidity);
-    console.log(req.params.cubeID);
-    console.log(req.params.battery);
+  var sensorDataQuery = new Parse.Query("SensorData")
+  var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
+  sensorDataQuery.equalTo("cube", cubePointer)
+  sensorDataQuery.find({
+    success: function(previousSensorData) {
+      if(previousSensorData.length > 0){
+        console.log("previousSensorData found")
+        var previousSensorData = previousSensorData[0]
+        previousSensorData.set("humidity",req.params.humidity)
+        previousSensorData.set("temperature",req.params.temperature)
+        previousSensorData.set("battery",req.params.battery)
+        previousSensorData.save(null {
+          success:function(success){
+            res.success("saved")
+          },
+          error: function(error) {
+            res.success("error")
+          }
+        })
 
-    res.success("success");
+      } else {
+        //make new sensor data
+         console.log("making new data")
+        var sensorDataSubclass = Parse.Object.extend("SensorData");
+        var sensorData = new sensorDataSubclass();
+        sensorData.set("humidity",req.params.humidity)
+        sensorData.set("temperature",req.params.temperature)
+        sensorData.set("battery",req.params.battery)
+        sensorData.save(null {
+          success:function(success){
+            res.success("saved")
+          },
+          error: function(error) {
+            res.success("error")
+          }
+        })
+      } 
+    },
+    error: function(error) {
+      console.log("error finding sensor data");
+      res.success("error");
+    }
+  })
 })
 
 
-//MARK: cloud hooks for fetch sensor cubes for a specific central hub
+//MARK: cloud hooks for fetch sensor cubes for a specific central hub. Input: centralHubID
 Parse.Cloud.define("fetchSensorCubes", function(req,res){
-    var query = new Parse.Query("Cube")
-    query.equalTo("deviceType", 2) //Sensor Cube 
+  var query = new Parse.Query("Cube")
+  query.equalTo("deviceType", 2) //Sensor Cube 
 
-    //Pointer to the Centrla Hub
-    console.log(req.params.centralHubId)
-    var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubId}
-    query.equalTo("centralHub", centralHubPointer);
+  //Pointer to the Centrla Hub
+  var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubID}
+  query.equalTo("centralHub", centralHubPointer);
 
-    sensorMACAddress = [];
+  sensorMACAddress = [];
 
-    query.find({
-      success:function(sensorCubes){
-        console.log("found" + sensorCubes.length + "cubes!")
-        for(var i =0; i < sensorCubes.length; i++) {
-            var macAddress = sensorCubes[i].get("macAddress");
-            sensorMACAddress.push(macAddress)
-        }
-        res.success(sensorMACAddress)
-      }, 
-      error: function(error) {
-        console.log("erroring fetching sensor cubes for hub " + req.params.centralHubId)
-        res.success();
+  query.find({
+    success:function(sensorCubes){
+      for(var i =0; i < sensorCubes.length; i++) {
+          var macAddress = sensorCubes[i].get("macAddress");
+          sensorMACAddress.push(macAddress)
       }
-    })
+      res.success(sensorMACAddress)
+    }, 
+    error: function(error) {
+      console.log("erroring fetching sensor cubes for hub " + req.params.centralHubId)
+      res.success(sensorMACAddress);
+    }
+  })
 })
+
 /**
 ** @brief: search for a food item in FoodItem database
 ** If item does not exist, create one
@@ -195,49 +231,49 @@ Parse.Cloud.afterSave("SensorData", function(req, res) {
   res.success();
 });
 
-Parse.Cloud.beforeSave("Photos", function(req, res) {
+// Parse.Cloud.beforeSave("Photos", function(req, res) {
 
-	var photoObject = req.object;
+// 	var photoObject = req.object;
 
-  //if(!photoObject.existed()) {
+//   //if(!photoObject.existed()) {
 
-    var imageString = photoObject.get("encrypStr");
-    imageString.replace(/\r?\n|\r/g, "");
+//     var imageString = photoObject.get("encrypStr");
+//     imageString.replace(/\r?\n|\r/g, "");
 
-    console.log("Predicting...");
-    app.models.predict(Clarifai.FOOD_MODEL, {base64: imageString}).then(
-        function(response) {
-            console.log("Found something!");
-            //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
-            Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
-              useMasterKey: true,
-              success: function(res) {
-                console.log("successfully called searchInFoodItem method");
+//     console.log("Predicting...");
+//     app.models.predict(Clarifai.FOOD_MODEL, {base64: imageString}).then(
+//         function(response) {
+//             console.log("Found something!");
+//             //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
+//             Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
+//               useMasterKey: true,
+//               success: function(res) {
+//                 console.log("successfully called searchInFoodItem method");
 
-                Parse.Cloud.run('saveToUsersFoodItem', {"APIresponse": response.outputs[0]["data"].concepts, "userID": photoObject.get("user").id}, {
-                  useMasterKey: true,
-                  success: function(res) {
-                    console.log("Successfully called method saveToUsersFoodItem");
-                  }, 
-                  error: function(err) {
-                    console.log("Error while calling function saveToUsersFoodItem");
-                  }
-                });
+//                 Parse.Cloud.run('saveToUsersFoodItem', {"APIresponse": response.outputs[0]["data"].concepts, "userID": photoObject.get("user").id}, {
+//                   useMasterKey: true,
+//                   success: function(res) {
+//                     console.log("Successfully called method saveToUsersFoodItem");
+//                   }, 
+//                   error: function(err) {
+//                     console.log("Error while calling function saveToUsersFoodItem");
+//                   }
+//                 });
 
-              },
-              error: function(err) {
-                console.log("err: Parse.Cloud.run");
-              }
-            });
+//               },
+//               error: function(err) {
+//                 console.log("err: Parse.Cloud.run");
+//               }
+//             });
 
-        },
-        function(err) {
-          // there was an error
-          console.log("Error :(");
-          console.log(err);
-        }
-      );
-  //}
+//         },
+//         function(err) {
+//           // there was an error
+//           console.log("Error :(");
+//           console.log(err);
+//         }
+//       );
+//   //}
 
-	res.success(); // save image in DB
-});
+// 	res.success(); // save image in DB
+// });
