@@ -6,76 +6,98 @@ var app = new Clarifai.App(
     );
 
 
+
+//MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
+// Parse.Cloud.define("newSensorData", function(req,res){
+//   var sensorDataQuery = new Parse.Query("SensorData")
+//   var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
+//   sensorDataQuery.equalTo("cube", cubePointer)
+//   sensorDataQuery.find({
+//     success: function(previousSensorData) {
+//       if(previousSensorData.length > 0){
+//         //Overwrite previuse data
+//         var previousSensorData = previousSensorData[0]
+//         previousSensorData.set("humidity",req.params.humidity)
+//         previousSensorData.set("temperature",req.params.temperature)
+//         previousSensorData.set("battery",req.params.battery)
+//         previousSensorData.save(null, {
+//           success:function(success){
+//             res.success("saved")
+//           },
+//           error: function(error) {
+//             res.success("error")
+//           }
+//         })
+
+//       } else {
+//         //make new sensor data
+//         var sensorDataSubclass = Parse.Object.extend("SensorData");
+//         var sensorData = new sensorDataSubclass();
+//         sensorData.set("humidity",req.params.humidity)
+//         sensorData.set("temperature",req.params.temperature)
+//         sensorData.set("battery",req.params.battery)
+//         sensorData.set("cube",cubePointer)
+//         sensorData.save(null, {
+//           success:function(success){
+//             res.success("saved")
+//           },
+//           error: function(error) {
+//             res.success("error")
+//           }
+//         })
+//       } 
+//     },
+//     error: function(error) {
+//       console.log("error finding sensor data");
+//       res.success("error");
+//     }
+//   })
+// })
+
+
 //MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
 Parse.Cloud.define("newSensorData", function(req,res){
-  var sensorDataQuery = new Parse.Query("SensorData")
-  var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
-  sensorDataQuery.equalTo("cube", cubePointer)
-  sensorDataQuery.find({
-    success: function(previousSensorData) {
-      if(previousSensorData.length > 0){
-        //Overwrite previuse data
-        var previousSensorData = previousSensorData[0]
-        previousSensorData.set("humidity",req.params.humidity)
-        previousSensorData.set("temperature",req.params.temperature)
-        previousSensorData.set("battery",req.params.battery)
-        previousSensorData.save(null, {
-          success:function(success){
-            res.success("saved")
-          },
-          error: function(error) {
-            res.success("error")
-          }
-        })
-
-      } else {
-        //make new sensor data
-        var sensorDataSubclass = Parse.Object.extend("SensorData");
-        var sensorData = new sensorDataSubclass();
-        sensorData.set("humidity",req.params.humidity)
-        sensorData.set("temperature",req.params.temperature)
-        sensorData.set("battery",req.params.battery)
-        sensorData.set("cube",cubePointer)
-        sensorData.save(null, {
-          success:function(success){
-            res.success("saved")
-          },
-          error: function(error) {
-            res.success("error")
-          }
-        })
-      } 
-    },
-    error: function(error) {
-      console.log("error finding sensor data");
-      res.success("error");
-    }
-  })
+    var sensorDataSubclass = Parse.Object.extend("SensorData");
+    var sensorData = new sensorDataSubclass();
+    sensorData.set("humidity",req.params.humidity)
+    sensorData.set("temperature",req.params.temperature)
+    sensorData.set("battery",req.params.battery)
+    var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
+    sensorData.set("cube",cubePointer)
+    sensorData.save(null, {
+      success:function(success){
+        res.success("saved")
+      },
+      error: function(error) {
+        res.success("error")
+      }
+    })
 })
 
 
-//MARK: cloud hooks for fetch sensor cubes for a specific central hub. Input: centralHubID
-Parse.Cloud.define("fetchSensorCubes", function(req,res){
+
+//MARK: cloud hooks for fetch sensor cubes for a specific central hub. Input: centralHubID, deivceType 
+Parse.Cloud.define("fetchCubes", function(req,res){
   var query = new Parse.Query("Cube")
-  query.equalTo("deviceType", 2) //Sensor Cube 
+  query.equalTo("deviceType", req.params.deviceType) //(1 = camera cube, 2 = sensor cube)
 
   //Pointer to the Central Hub
   var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubID}
   query.equalTo("centralHub", centralHubPointer);
 
-  sensorMACAddress = [];
+  CubesMACAddresses = [];
 
   query.find({
-    success:function(sensorCubes){
-      for(var i =0; i < sensorCubes.length; i++) {
-          var macAddress = sensorCubes[i].get("macAddress");
-          sensorMACAddress.push(macAddress)
+    success:function(foundCubes){
+      for(var i =0; i < foundCubes.length; i++) {
+          var macAddress = foundCubes[i].get("macAddress");
+          CubesMACAddresses.push(foundCubes)
       }
-      res.success(sensorMACAddress)
+      res.success(CubesMACAddresses)
     }, 
     error: function(error) {
       console.log("erroring fetching sensor cubes for hub " + req.params.centralHubId)
-      res.success(sensorMACAddress);
+      res.success(CubesMACAddresses);
     }
   })
 })
@@ -213,9 +235,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 //MARK: afterSave and beforeSave Functions 
 
 Parse.Cloud.afterSave("SensorData", function(req, res) {
-  var sensorDataObject = req.object;
-  if(!sensorDataObject.existed()) {
-    //New Sensor Data 
+    var sensorDataObject = req.object;
     var cubeQuery = new Parse.Query("Cube")
     cubeQuery.equalTo("objectId", sensorDataObject.get("cube").id)
     cubeQuery.find({
@@ -223,15 +243,22 @@ Parse.Cloud.afterSave("SensorData", function(req, res) {
           if(cubes.length > 0){
               var cube = cubes[0]
               var sensorDataPointer = {__type: 'Pointer', className: 'SensorData', objectId: sensorDataObject.id}
-              cube.set("sensorData", sensorDataPointer)
+              sensorDataArray = cube.get("sensorData")
+              if(sensorDataArray == null) {
+                sensorDataArray = [sensorDataPointer]
+              } else {
+                sensorDataArray.unshift(sensorDataPointer)
+              }
+              cube.set("sensorData", sensorDataArray)
               cube.save()
+          } else {
+            console.log("no Cube  object found")
           }
         },
         error: function(error) {
           console.log("error finding cube");
         }
      })
-  }
     res.success("success")
 });
 
