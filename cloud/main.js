@@ -236,7 +236,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 
 Parse.Cloud.afterSave("SensorData", function(req, res) {
     var sensorDataObject = req.object;
-    if !(sensorDataObject.existed()) {
+    if (!sensorDataObject.existed()) {
       var cubeQuery = new Parse.Query("Cube")
       cubeQuery.equalTo("objectId", sensorDataObject.get("cube").id)
       cubeQuery.find({
