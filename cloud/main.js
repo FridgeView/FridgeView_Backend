@@ -236,29 +236,31 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 
 Parse.Cloud.afterSave("SensorData", function(req, res) {
     var sensorDataObject = req.object;
-    var cubeQuery = new Parse.Query("Cube")
-    cubeQuery.equalTo("objectId", sensorDataObject.get("cube").id)
-    cubeQuery.find({
-      success: function(cubes) {
-          if(cubes.length > 0){
-              var cube = cubes[0]
-              var sensorDataPointer = {__type: 'Pointer', className: 'SensorData', objectId: sensorDataObject.id}
-              sensorDataArray = cube.get("sensorData")
-              if(sensorDataArray == null) {
-                sensorDataArray = [sensorDataPointer]
-              } else {
-                sensorDataArray.unshift(sensorDataPointer)
-              }
-              cube.set("sensorData", sensorDataArray)
-              cube.save()
-          } else {
-            console.log("no Cube  object found")
+    if !(sensorDataObject.existed()) {
+      var cubeQuery = new Parse.Query("Cube")
+      cubeQuery.equalTo("objectId", sensorDataObject.get("cube").id)
+      cubeQuery.find({
+        success: function(cubes) {
+            if(cubes.length > 0){
+                var cube = cubes[0]
+                var sensorDataPointer = {__type: 'Pointer', className: 'SensorData', objectId: sensorDataObject.id}
+                sensorDataArray = cube.get("sensorData")
+                if(sensorDataArray == null) {
+                  sensorDataArray = [sensorDataPointer]
+                } else {
+                  sensorDataArray.unshift(sensorDataPointer)
+                }
+                cube.set("sensorData", sensorDataArray)
+                cube.save()
+            } else {
+              console.log("no Cube  object found")
+            }
+          },
+          error: function(error) {
+            console.log("error finding cube");
           }
-        },
-        error: function(error) {
-          console.log("error finding cube");
-        }
-     })
+       })
+  }
     res.success("success")
 });
 
