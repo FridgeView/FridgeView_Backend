@@ -91,7 +91,7 @@ Parse.Cloud.define("fetchCubes", function(req,res){
     success:function(foundCubes){
       for(var i =0; i < foundCubes.length; i++) {
           var macAddress = foundCubes[i].get("macAddress");
-          CubesMACAddresses.push(foundCubes)
+          CubesMACAddresses.push(macAddress)
       }
       res.success(CubesMACAddresses)
     }, 
