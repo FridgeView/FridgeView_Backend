@@ -16,16 +16,21 @@ Parse.Cloud.define("newCube", function(req,res){
     success: function(cubes){
       if(cubes.length > 0) {
         var cube = cubes[0]
-        var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubID}
-        cube.set("centralHub", centralHubPointer)
-        cube.save(null, {
-          success:function(success){
-            res.success("saved!")
-          },
-          error: function(error) {
-            res.success("error")
-          }
-        }) 
+        if (cube.get("centralHub") != null) {
+          //cube found, but already has pointer to central hub
+          res.success("cube in use")
+        }  else {
+          var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubID}
+          cube.set("centralHub", centralHubPointer)
+          cube.save(null, {
+            success:function(success){
+              res.success("cube added")
+            },
+            error: function(error) {
+              res.success("no cubes found")
+            }
+          }) 
+        }
       } else {
         console.log("no cubes found cubeID" + req.params.cubeID)
         res.success("error")
@@ -61,7 +66,7 @@ Parse.Cloud.define("newSensorData", function(req,res){
 Parse.Cloud.define("newCentralHubData", function(req,res){
   console.log("NEW CENTRALHUBDATA")
   console.log(req.params.photo)
-  req.success("done")
+  res.success("done")
 })
 
 //MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
