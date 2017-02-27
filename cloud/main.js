@@ -35,9 +35,8 @@ Parse.Cloud.define("newCube", function(req,res){
       console.log("error fiding cubes for cubeID")
       res.success("error")
     }
-
   })
-}
+})
 
 //MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
 Parse.Cloud.define("newSensorData", function(req,res){
