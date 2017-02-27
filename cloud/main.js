@@ -58,7 +58,7 @@ Parse.Cloud.define("newSensorData", function(req,res){
 })
 
 
-Parse.Cloud("newCentralHubData", function(req,res){
+Parse.Cloud.define("newCentralHubData", function(req,res){
   console.log("NEW CENTRALHUBDATA")
   console.log(req.params.photo)
 })
