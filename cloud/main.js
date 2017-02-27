@@ -7,6 +7,63 @@ var app = new Clarifai.App(
 
 
 
+
+//MARK: cloud hooks for New Cube. Input: cubeID, centralHubID
+Parse.Cloud.define("newCube", function(req,res){
+  var cubeQuery = new Parse.Query("Cube")
+  cubeQuery.equalTo("objectId", req.params.cubeID)
+  cubeQuery.find({
+    success: function(cubes){
+      if(cubes.length > 0) {
+        var cube = cubes[0]
+        var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubID}
+        cube.set("centralHub", centralHubPointer)
+        cube.save(null, {
+          success:function(success){
+            res.success("saved!")
+          },
+          error: function(error) {
+            res.success("error")
+          }
+        }) 
+      } else {
+        console.log("no cubes found cubeID" + req.params.cubeID)
+        res.success("error")
+      }
+    },
+    error: function(error){
+      console.log("error fiding cubes for cubeID")
+      res.success("error")
+    }
+
+  })
+}
+
+//MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
+Parse.Cloud.define("newSensorData", function(req,res){
+    var sensorDataSubclass = Parse.Object.extend("SensorData");
+    var sensorData = new sensorDataSubclass();
+    sensorData.set("humidity",req.params.humidity)
+    sensorData.set("temperature",req.params.temperature)
+    sensorData.set("battery",req.params.battery)
+    var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
+    sensorData.set("cube",cubePointer)
+    sensorData.save(null, {
+      success:function(success){
+        res.success("saved")
+      },
+      error: function(error) {
+        res.success("error")
+      }
+    })
+})
+
+
+Parse.Cloud("newCentralHubData", function(req,res){
+  console.log("NEW CENTRALHUBDATA")
+  console.log(req.params.photo)
+})
+
 //MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
 // Parse.Cloud.define("newSensorData", function(req,res){
 //   var sensorDataQuery = new Parse.Query("SensorData")
@@ -53,27 +110,6 @@ var app = new Clarifai.App(
 //     }
 //   })
 // })
-
-
-//MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
-Parse.Cloud.define("newSensorData", function(req,res){
-    var sensorDataSubclass = Parse.Object.extend("SensorData");
-    var sensorData = new sensorDataSubclass();
-    sensorData.set("humidity",req.params.humidity)
-    sensorData.set("temperature",req.params.temperature)
-    sensorData.set("battery",req.params.battery)
-    var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
-    sensorData.set("cube",cubePointer)
-    sensorData.save(null, {
-      success:function(success){
-        res.success("saved")
-      },
-      error: function(error) {
-        res.success("error")
-      }
-    })
-})
-
 
 
 //MARK: cloud hooks for fetch sensor cubes for a specific central hub. Input: centralHubID, deivceType 
@@ -250,6 +286,12 @@ Parse.Cloud.afterSave("SensorData", function(req, res) {
                 } else {
                   sensorDataArray.unshift(sensorDataPointer)
                 }
+
+                //Only keep the most recent 15 SensorData linked to Cube (still keep them in the SensorData Collection)
+                if(sensorDataArray.length > 15) {
+                  sensorDataArray.splice(15, sensorDataArray.length - 14)
+                }
+
                 cube.set("sensorData", sensorDataArray)
                 cube.save()
             } else {
