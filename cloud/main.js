@@ -61,6 +61,7 @@ Parse.Cloud.define("newSensorData", function(req,res){
 Parse.Cloud.define("newCentralHubData", function(req,res){
   console.log("NEW CENTRALHUBDATA")
   console.log(req.params.photo)
+  req.success("done")
 })
 
 //MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
