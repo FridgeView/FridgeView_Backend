@@ -96,7 +96,7 @@ Parse.Cloud.define("newSensorData", function(req,res){
 //           }
 //       })
 //     }
-});
+//});
 
 
 //MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
