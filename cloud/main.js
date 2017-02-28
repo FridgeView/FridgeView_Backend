@@ -99,53 +99,6 @@ Parse.Cloud.define("newSensorData", function(req,res){
 //});
 
 
-//MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
-// Parse.Cloud.define("newSensorData", function(req,res){
-//   var sensorDataQuery = new Parse.Query("SensorData")
-//   var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
-//   sensorDataQuery.equalTo("cube", cubePointer)
-//   sensorDataQuery.find({
-//     success: function(previousSensorData) {
-//       if(previousSensorData.length > 0){
-//         //Overwrite previuse data
-//         var previousSensorData = previousSensorData[0]
-//         previousSensorData.set("humidity",req.params.humidity)
-//         previousSensorData.set("temperature",req.params.temperature)
-//         previousSensorData.set("battery",req.params.battery)
-//         previousSensorData.save(null, {
-//           success:function(success){
-//             res.success("saved")
-//           },
-//           error: function(error) {
-//             res.success("error")
-//           }
-//         })
-
-//       } else {
-//         //make new sensor data
-//         var sensorDataSubclass = Parse.Object.extend("SensorData");
-//         var sensorData = new sensorDataSubclass();
-//         sensorData.set("humidity",req.params.humidity)
-//         sensorData.set("temperature",req.params.temperature)
-//         sensorData.set("battery",req.params.battery)
-//         sensorData.set("cube",cubePointer)
-//         sensorData.save(null, {
-//           success:function(success){
-//             res.success("saved")
-//           },
-//           error: function(error) {
-//             res.success("error")
-//           }
-//         })
-//       } 
-//     },
-//     error: function(error) {
-//       console.log("error finding sensor data");
-//       res.success("error");
-//     }
-//   })
-// })
-
 
 //MARK: cloud hooks for fetch sensor cubes for a specific central hub. Input: centralHubID, deivceType 
 Parse.Cloud.define("fetchCubes", function(req,res){
@@ -341,49 +294,60 @@ Parse.Cloud.afterSave("SensorData", function(req, res) {
     res.success("success")
 });
 
-// Parse.Cloud.beforeSave("Photos", function(req, res) {
+Parse.Cloud.beforeSave("CentralHubData", function(req, res) {
 
-// 	var photoObject = req.object;
+  var photoObject = req.object;
 
-//   //if(!photoObject.existed()) {
+  //if(!photoObject.existed()) {
 
-//     var imageString = photoObject.get("encrypStr");
-//     imageString.replace(/\r?\n|\r/g, "");
+    var imageURL = photoObject.get("photoFile").url;
+    var centralHub = photoObject.get("centralHub");
 
-//     console.log("Predicting...");
-//     app.models.predict(Clarifai.FOOD_MODEL, {base64: imageString}).then(
-//         function(response) {
-//             console.log("Found something!");
-//             //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
-//             Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
-//               useMasterKey: true,
-//               success: function(res) {
-//                 console.log("successfully called searchInFoodItem method");
+    var queryToGetUserID = new Parse.Query("CentralHub");
+    queryToGetUserID.equalTo("objectId", photoObject.get("centralHub").id);
 
-//                 Parse.Cloud.run('saveToUsersFoodItem', {"APIresponse": response.outputs[0]["data"].concepts, "userID": photoObject.get("user").id}, {
-//                   useMasterKey: true,
-//                   success: function(res) {
-//                     console.log("Successfully called method saveToUsersFoodItem");
-//                   }, 
-//                   error: function(err) {
-//                     console.log("Error while calling function saveToUsersFoodItem");
-//                   }
-//                 });
+    console.log("Predicting...");
+    app.models.predict(Clarifai.FOOD_MODEL, imageURL).then(
+        function(response) {
+            console.log("Found something!");
+            //console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
+            Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
+              useMasterKey: true,
+              success: function(res) {
+                console.log("successfully called searchInFoodItem method");
 
-//               },
-//               error: function(err) {
-//                 console.log("err: Parse.Cloud.run");
-//               }
-//             });
+                queryToGetUserID.find({
+                  success: function(centralHubObj) {
+                    console.log("Successfully found Central Hub object from pointer");
+                    Parse.Cloud.run('saveToUsersFoodItem', {"APIresponse": response.outputs[0]["data"].concepts, "userID": centralHubObj[0].get("user").id}, {
+                    useMasterKey: true,
+                    success: function(res) {
+                      console.log("Successfully called method saveToUsersFoodItem");
+                    }, 
+                    error: function(err) {
+                      console.log("Error while calling function saveToUsersFoodItem");
+                    }
+                });
 
-//         },
-//         function(err) {
-//           // there was an error
-//           console.log("Error :(");
-//           console.log(err);
-//         }
-//       );
-//   //}
+                  },
+                  error: function(err) {
+                    console.log("Error - Cannot find Central Hub from pointer");
+                  }
+                });
 
-// 	res.success(); // save image in DB
-// });
+              },
+              error: function(err) {
+                console.log("err: Parse.Cloud.run");
+              }
+            });
+
+        },
+        function(err) {
+          // there was an error
+          console.log("Error :(");
+          console.log(err);
+        }
+      );
+  //}
+  res.success(); // save image in DB
+});
