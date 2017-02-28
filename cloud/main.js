@@ -96,55 +96,8 @@ Parse.Cloud.define("newSensorData", function(req,res){
 //           }
 //       })
 //     }
-});
+//});
 
-
-//MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
-// Parse.Cloud.define("newSensorData", function(req,res){
-//   var sensorDataQuery = new Parse.Query("SensorData")
-//   var cubePointer = {__type: 'Pointer', className: 'Cube', objectId: req.params.cubeID}
-//   sensorDataQuery.equalTo("cube", cubePointer)
-//   sensorDataQuery.find({
-//     success: function(previousSensorData) {
-//       if(previousSensorData.length > 0){
-//         //Overwrite previuse data
-//         var previousSensorData = previousSensorData[0]
-//         previousSensorData.set("humidity",req.params.humidity)
-//         previousSensorData.set("temperature",req.params.temperature)
-//         previousSensorData.set("battery",req.params.battery)
-//         previousSensorData.save(null, {
-//           success:function(success){
-//             res.success("saved")
-//           },
-//           error: function(error) {
-//             res.success("error")
-//           }
-//         })
-
-//       } else {
-//         //make new sensor data
-//         var sensorDataSubclass = Parse.Object.extend("SensorData");
-//         var sensorData = new sensorDataSubclass();
-//         sensorData.set("humidity",req.params.humidity)
-//         sensorData.set("temperature",req.params.temperature)
-//         sensorData.set("battery",req.params.battery)
-//         sensorData.set("cube",cubePointer)
-//         sensorData.save(null, {
-//           success:function(success){
-//             res.success("saved")
-//           },
-//           error: function(error) {
-//             res.success("error")
-//           }
-//         })
-//       } 
-//     },
-//     error: function(error) {
-//       console.log("error finding sensor data");
-//       res.success("error");
-//     }
-//   })
-// })
 
 
 //MARK: cloud hooks for fetch sensor cubes for a specific central hub. Input: centralHubID, deivceType 
