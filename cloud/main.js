@@ -63,11 +63,41 @@ Parse.Cloud.define("newSensorData", function(req,res){
 })
 
 
-Parse.Cloud.define("newCentralHubData", function(req,res){
-  console.log("NEW CENTRALHUBDATA")
-  console.log(req.params.photo)
-  res.success("done")
-})
+
+// Parse.Cloud.beforeSave("CentralHubData", function(req, res) {
+//     var newData = req.object;
+//     if (!newData.existed()) {
+//       var query = new Parse.Query("CentralHubData")
+//       var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: newData.get("centralHub").id}
+//       query.equalTo("centralHub", centralHubPointer)
+//       query.find({
+//         success: function(centralHubDatas) {
+//             if(centralHubDatas.length > 0){
+//                 centralHubData = centralHubDatas[0]
+//                 centralHubData.set("battery", newData.get("battery"))
+//                 centralHubData.set("photoFile", newData.get("photoFile"))
+//                 centralHubData.save(null, {
+//                 success:function(success){
+//                   res.error("updated older data")
+//                 },
+//                 error: function(error) {
+//                   res.error("error")
+//                 }
+//               })
+//             } else {
+//               //no previouse centralHubData - success to save
+//               console.log(newData.id)
+//               res.success("save")              
+//             }
+//           },
+//           error: function(error) {
+//             console.log("error");
+//             res.error("error")
+//           }
+//       })
+//     }
+});
+
 
 //MARK: cloud hooks for New Sensor Data. Input: cubeID, temperature, battery, humidity
 // Parse.Cloud.define("newSensorData", function(req,res){
