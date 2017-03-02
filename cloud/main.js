@@ -18,16 +18,17 @@ Parse.Cloud.define("newCube", function(req,res){
         var cube = cubes[0]
         if (cube.get("centralHub") != null) {
           //cube found, but already has pointer to central hub
-          res.success("cube in use")
+          console.log("cube in use")
+          res.success("in use")
         }  else {
           var centralHubPointer = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubID}
           cube.set("centralHub", centralHubPointer)
           cube.save(null, {
             success:function(success){
-              res.success("cube added")
+              res.success(cube.get("macAddress"))
             },
             error: function(error) {
-              res.success("no cubes found")
+              res.success("error")
             }
           }) 
         }
