@@ -164,7 +164,7 @@ Parse.Cloud.afterSave("CentralHubData", function(req, res) {
     var centralHubDataObject = req.object;
     if (!centralHubDataObject.existed()) {
       var centralHubQuery = new Parse.Query("CentralHub")
-      centralHubQuery.equalTo("objectId", centralHubDataObject.get("cube").id)
+      centralHubQuery.equalTo("objectId", centralHubDataObject.get("centralHub").id)
       centralHubQuery.find({
         success: function(centralHubs) {
             if(centralHubs.length > 0){
