@@ -170,7 +170,7 @@ Parse.Cloud.afterSave("CentralHubData", function(req, res) {
             if(centralHubs.length > 0){
                 var centralHub = centralHubs[0]
                 var centralHubPointer = {__type: 'Pointer', className: 'CentralHubData', objectId: centralHubDataObject.id}
-                centralHub.set("cameraData", cameraDataPointer) //Add new photo to cube object, not deleting old photo yet 
+                centralHub.set("centralHubData", centralHubPointer) //Add new photo to cube object, not deleting old photo yet 
                 centralHub.save()
             } else {
               console.log("no hub  object found")
