@@ -339,6 +339,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
     success: function(foodItemsFound) {
 
       queryUserID.equalTo("user", userPointer);
+      queryUserID.include("foodItem");
       queryUserID.find({
         success: function(previousUserInventory) {
 
@@ -348,9 +349,16 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
           // else {
           //   console.log("DONT REFRESH!!!!");
           // }
-
+          var num_diff = 0;
+          for(var i=0; i<previousUserInventory.length; i++) {
+            for(var j=0; j<req.params.APIresponse.length; j++) {
+              if(previousUserInventory[i]['foodItem']['clarifaiID'] != req.params.APIresponse[j]['clarifaiID'])
+                num_diff++;
+            }
+          }
           console.log("Previous user's inventory: " + previousUserInventory);
           console.log("Current user's inventory: " + req.params.APIresponse);
+          console.log("Number of differences: " + num_diff.toString());
           if(foodItemsFound.length == req.params.APIresponse.length) {
             console.log("All Items were added to the FoodItems Collection :)");
           }
