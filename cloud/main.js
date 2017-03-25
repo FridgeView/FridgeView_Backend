@@ -191,14 +191,14 @@ Parse.Cloud.beforeSave("CentralHubData", function(req, res) {
 
   if(!photoObject.existed()) {
 
-    var imageURL = photoObject.get("photoFile").url;
+    var imageURL = photoObject.get("photoFile").url();
     var centralHub = photoObject.get("centralHub");
 
     var queryToGetUserID = new Parse.Query("CentralHub");
     queryToGetUserID.equalTo("objectId", photoObject.get("centralHub").id);
 
     console.log("Predicting...");
-    console.log("Image URL: " + photoObject.get("photoFile").url);
+    console.log("Image URL: " + imageURL);
     app.models.predict(Clarifai.FOOD_MODEL, imageURL).then(
         function(response) {
             console.log("Found something!");
