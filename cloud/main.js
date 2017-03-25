@@ -319,9 +319,12 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
 });
 
 Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
-  var query = new Parse.Query("FoodItem");
+  var queryFoodItem = new Parse.Query("FoodItem");
+  var queryUserID = new Parse.Query("UserFoodItem");
 
   var userID = req.params.userID;
+  var userPointer = {__type: 'Pointer', className: '_User', objectId: userID}
+
   var ids_detected = []; // stores all of the IDs that have been detected by API
   var idsWithProbabilities = {}; // mapping between id->probability of correctness (used for userFood class)
 
@@ -331,42 +334,55 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
   }
 
   /*** (1): Searching for all ids that the Food API detected inside our FoodItem collection ***/
-  query.containedIn("clarifaiID", ids_detected);
-  query.find({
+  queryFoodItem.containedIn("clarifaiID", ids_detected);
+  queryFoodItem.find({
     success: function(foodItemsFound) {
 
-      if(foodItemsFound.length == req.params.APIresponse.length) {
-        console.log("All Items were added to the FoodItems Collection :)");
-      }
-      else {
-        console.log("Some items are missing in the FoodItems Collection - this should not happen :(");
-      }
+      queryUserID.containedIn("user", userPointer);
+      queryUserID.find({
+        success: function(previousUserInventory) {
 
-      var objectsToSave = [];
-      var userFoodItemSubclass = Parse.Object.extend("UserFoodItem");
-      for(var i=0; i<foodItemsFound.length; i++) {
-        var userFoodItem = new userFoodItemSubclass();
-        var userPointer = {__type: 'Pointer', className: '_User', objectId: userID}
-        var foodItemPointer = {__type: 'Pointer', className: 'FoodItem', objectId: foodItemsFound[i].id} // NOT SURE
-        var proba = idsWithProbabilities[foodItemsFound[i].get("clarifaiID")];
+          console.log("Previous user's inventory: " + previousUserInventory);
+          if(foodItemsFound.length == req.params.APIresponse.length) {
+            console.log("All Items were added to the FoodItems Collection :)");
+          }
+          else {
+            console.log("Some items are missing in the FoodItems Collection - this should not happen :(");
+          }
 
-        userFoodItem.set("foodItem", foodItemPointer);
-        userFoodItem.set("user", userPointer);
-        userFoodItem.set("probability", proba); // TODO
-        objectsToSave.push(userFoodItem);
-      }
+          var objectsToSave = [];
+          var userFoodItemSubclass = Parse.Object.extend("UserFoodItem");
+          for(var i=0; i<foodItemsFound.length; i++) {
+            var userFoodItem = new userFoodItemSubclass();
+            var foodItemPointer = {__type: 'Pointer', className: 'FoodItem', objectId: foodItemsFound[i].id} // NOT SURE
+            var proba = idsWithProbabilities[foodItemsFound[i].get("clarifaiID")];
 
-      Parse.Object.saveAll(objectsToSave, {
-        useMasterKey: true,
-        success: function(succ) {
-          console.log("Successfully saved " + objectsToSave.length + " IDs");
-          res.success("done");
+            userFoodItem.set("foodItem", foodItemPointer);
+            userFoodItem.set("user", userPointer);
+            userFoodItem.set("probability", proba); // TODO
+            objectsToSave.push(userFoodItem);
+          }
+
+          Parse.Object.saveAll(objectsToSave, {
+            useMasterKey: true,
+            success: function(succ) {
+              console.log("Successfully saved " + objectsToSave.length + " IDs");
+              res.success("done");
+            },
+            error: function(error) {
+              console.log("error while saving to DB");
+              console.log(error);
+              res.error(error);
+            }
+          });
+
         },
-        error: function(error) {
-          console.log("error while saving to DB");
-          console.log(error);
-          res.error(error);
+        error: function(err) {
+          console.log("Error while retreiving previous user's inventory");
+          console.log(err);
+          res.error(err);
         }
+
       });
     },
     error: function(error) {
