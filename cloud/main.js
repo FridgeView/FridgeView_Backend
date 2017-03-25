@@ -355,11 +355,17 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
             for(var j=0; j<foodItemsFound.length; j++) {
               console.log("HERE AS WELL :)");
               var foodItemPtr = previousUserInventory[i].get("foodItem");
-              console.log(foodItemPtr);
+              console.log(foodItemPtr.get("clarifaiID"));
               console.log(foodItemPtr.get("clarifaiID"));
 
-              if(previousUserInventory[i].foodItem['clarifaiID'] != foodItemsFound[j].get('clarifaiID'))
-                num_diff++;
+              if(previousUserInventory[i].foodItem['clarifaiID'] != foodItemsFound[j].get('clarifaiID')) {
+                if(j == foodItemsFound.length-1)
+                  num_diff++;
+              }
+              else {
+                i++;
+                j=0;
+              }
             }
           }
           console.log("Previous user's inventory: " + previousUserInventory);
