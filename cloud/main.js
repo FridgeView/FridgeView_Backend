@@ -350,8 +350,10 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
           //   console.log("DONT REFRESH!!!!");
           // }
           var num_diff = 0;
+          console.log("Still alive");
           for(var i=0; i<previousUserInventory.length; i++) {
             for(var j=0; j<req.params.APIresponse.length; j++) {
+              console.log("HERE AS WELL :)");
               if(previousUserInventory[i]['foodItem']['clarifaiID'] != req.params.APIresponse[j]['clarifaiID'])
                 num_diff++;
             }
