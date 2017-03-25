@@ -343,33 +343,14 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
       queryUserID.find({
         success: function(previousUserInventory) {
 
-          // if(_.difference(previousUserInventory, req.params.APIresponse).length > 3) {
-          //   console.log("PERFORM REFRESH!!!!");
-          // }
-          // else {
-          //   console.log("DONT REFRESH!!!!");
-          // }
-          var num_diff = 0;
-          console.log("Still alive");
+          var num_diff = previousUserInventory.length + foodItemsFound.length;
           for(var i=0; i<previousUserInventory.length; i++) {
             for(var j=0; j<foodItemsFound.length; j++) {
-              console.log("HERE AS WELL :)");
-              var foodItemPtr = previousUserInventory[i].get("foodItem").get("clarifaiID");
-              console.log(foodItemPtr);
-              console.log(foodItemsFound[j].get("clarifaiID"));
-
-              if(previousUserInventory[i].get("foodItem").get("clarifaiID") != foodItemsFound[j].get('clarifaiID')) {
-                if(j == foodItemsFound.length-1)
-                  num_diff++;
-              }
-              else {
-                i++;
-                j=0;
+              if(previousUserInventory[i].get("foodItem").get("clarifaiID") == foodItemsFound[j].get('clarifaiID')) {
+                num_diff-=2;
               }
             }
           }
-          console.log("Previous user's inventory: " + previousUserInventory);
-          console.log("Current user's inventory: " + req.params.APIresponse);
           console.log("Number of differences: " + num_diff.toString());
           if(foodItemsFound.length == req.params.APIresponse.length) {
             console.log("All Items were added to the FoodItems Collection :)");
