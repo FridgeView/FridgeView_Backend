@@ -338,7 +338,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
   queryFoodItem.find({
     success: function(foodItemsFound) {
 
-      queryUserID.containedIn("user", userPointer);
+      queryUserID.containedIn("_p_user", userPointer);
       queryUserID.find({
         success: function(previousUserInventory) {
 
