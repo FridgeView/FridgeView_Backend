@@ -342,6 +342,13 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
       queryUserID.find({
         success: function(previousUserInventory) {
 
+          if(_.difference(previousUserInventory, req.params.APIresponse).length > 3) {
+            console.log("PERFORM REFRESH!!!!");
+          }
+          else {
+            console.log("DONT REFRESH!!!!");
+          }
+
           console.log("Previous user's inventory: " + previousUserInventory);
           if(foodItemsFound.length == req.params.APIresponse.length) {
             console.log("All Items were added to the FoodItems Collection :)");
@@ -359,7 +366,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 
             userFoodItem.set("foodItem", foodItemPointer);
             userFoodItem.set("user", userPointer);
-            userFoodItem.set("probability", (parseInt(proba)*100).toString()); // TODO
+            userFoodItem.set("probability", proba); // TODO
             objectsToSave.push(userFoodItem);
           }
 
