@@ -338,7 +338,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
   queryFoodItem.find({
     success: function(foodItemsFound) {
 
-      queryUserID.containedIn("user", userPointer);
+      queryUserID.equalTo("user", userPointer);
       queryUserID.find({
         success: function(previousUserInventory) {
 
@@ -359,7 +359,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 
             userFoodItem.set("foodItem", foodItemPointer);
             userFoodItem.set("user", userPointer);
-            userFoodItem.set("probability", proba); // TODO
+            userFoodItem.set("probability", (parseInt(proba)*100).toString()); // TODO
             objectsToSave.push(userFoodItem);
           }
 
