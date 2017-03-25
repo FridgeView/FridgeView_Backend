@@ -350,6 +350,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
           // }
 
           console.log("Previous user's inventory: " + previousUserInventory);
+          console.log("Current user's inventory: " + req.params.APIresponse);
           if(foodItemsFound.length == req.params.APIresponse.length) {
             console.log("All Items were added to the FoodItems Collection :)");
           }
