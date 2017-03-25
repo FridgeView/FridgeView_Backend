@@ -198,7 +198,7 @@ Parse.Cloud.beforeSave("CentralHubData", function(req, res) {
     queryToGetUserID.equalTo("objectId", photoObject.get("centralHub").id);
 
     console.log("Predicting...");
-    console.log("Image URL: " + imageURL);
+    console.log("Image URL: " + photoObject.get("photoFile").url);
     app.models.predict(Clarifai.FOOD_MODEL, imageURL).then(
         function(response) {
             console.log("Found something!");
