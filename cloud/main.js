@@ -198,11 +198,9 @@ Parse.Cloud.beforeSave("CentralHubData", function(req, res) {
     queryToGetUserID.equalTo("objectId", photoObject.get("centralHub").id);
 
     console.log("Predicting...");
-    console.log("Image URL: " + imageURL);
     app.models.predict(Clarifai.FOOD_MODEL, imageURL).then(
         function(response) {
             console.log("Found something!");
-            console.log(response.outputs[0]["data"].concepts); // printing all of the detected ingredients from image
             Parse.Cloud.run('searchInFoodItem', {"APIresponse": response.outputs[0]["data"].concepts}, {
               useMasterKey: true,
               success: function(res) {
