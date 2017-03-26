@@ -297,7 +297,7 @@ Parse.Cloud.define("searchInFoodItem", function(req, res) {
       Parse.Object.saveAll(objectsToSave, {
         useMasterKey: true,
         success: function(succ) {
-          console.log("Successfully saved " + objectsToSave.length + " IDs");
+          console.log("Successfully saved " + objectsToSave.length + " IDs to FoodItem");
           res.success("done");
         },
         error: function(error) {
@@ -402,7 +402,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
           Parse.Object.saveAll(objectsToSave, {
             useMasterKey: true,
             success: function(succ) {
-              console.log("Successfully saved " + objectsToSave.length + " IDs");
+              console.log("Successfully saved " + objectsToSave.length + " IDs to UserFoodItem");
               if(objectsToDestroy.length != 0) {
                 Parse.Object.DestroyAll(objectsToDestroy, {
                   useMasterKey: true,
