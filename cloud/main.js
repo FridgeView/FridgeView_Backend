@@ -445,3 +445,57 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
   });
 
 });
+
+
+Parse.Cloud.define("changeItemsToStatus0", function(req, res) {
+  var query = new Parse.Query("UserFoodItem");
+
+  query.containedIn("objectId", req.params.items);
+  query.find({
+    success: function(objectsToModif) {
+      for(var i=0; i<objectsToModif.length; i++) {
+        objectsToModif.set("status", 0);
+      }
+      Parse.Object.saveAll(objectsToModif, {
+        useMasterKey: true,
+        success: function(succ) {
+          console.log("Successfully changed " + objectsToModif.length + " objects in UserFoodItem");
+          res.success(succ);
+        },
+        error: function(err) {
+          console.log("Error while saving to DB");
+        }
+      });
+
+    },
+    error: function(error) {
+      console.log("Error while querying DB");
+      res.error(error);
+    }
+  });
+});
+
+Parse.Cloud.define("deleteItems", function(req, res) {
+  var query = new Parse.Query("UserFoodItem");
+
+  query.containedIn("objectId", req.params.items);
+  query.find({
+    success: function(objectsToRemove) {
+      Parse.Object.destroyAll(objectsToRemove, {
+        useMasterKey: true,
+        success: function(succ) {
+          console.log("Successfully deleted " + objectsToRemove.length + " objects in UserFoodItem");
+          res.success(succ);
+        },
+        error: function(err) {
+          console.log("Error while destroying");
+          res.error(err);
+        }
+      });
+    },
+    error: function(error) {
+      console.log("Error while querying");
+      res.error(error);
+    }
+  });
+});
