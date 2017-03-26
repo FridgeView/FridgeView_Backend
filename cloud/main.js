@@ -338,28 +338,54 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
   queryFoodItem.find({
     success: function(foodItemsFound) {
 
+      if(foodItemsFound.length == req.params.APIresponse.length) {
+        console.log("All Items were added to the FoodItems Collection :)");
+      }
+      else {
+        console.log("Some items are missing in the FoodItems Collection - this should not happen :(");
+      }
+
       queryUserID.equalTo("user", userPointer);
       queryUserID.include("foodItem");
       queryUserID.find({
         success: function(previousUserInventory) {
 
-          var num_diff = previousUserInventory.length + foodItemsFound.length;
+          var objectsToSave = [];
+          var objectsToDestroy = [];
+
           for(var i=0; i<previousUserInventory.length; i++) {
+            var foundInNewArray = false;
+
+            /*** searching for the element inside the new array ***/
             for(var j=0; j<foodItemsFound.length; j++) {
+              /** element from previous is in the new resuts **/
               if(previousUserInventory[i].get("foodItem").get("clarifaiID") == foodItemsFound[j].get('clarifaiID')) {
-                num_diff-=2;
+                foundInNewArray = true;
+                if(previousUserInventory[i].get("status") == -1) {
+                  previousUserInventory[i].set("status", 0);
+                  objectsToSave.push(previousUserInventory[i]);
+                }
+                // delete this element from the new array
+                foodItemsFound.splice(j,1);
               }
             }
-          }
-          console.log("Number of differences: " + num_diff.toString());
-          if(foodItemsFound.length == req.params.APIresponse.length) {
-            console.log("All Items were added to the FoodItems Collection :)");
-          }
-          else {
-            console.log("Some items are missing in the FoodItems Collection - this should not happen :(");
+            /** element from previous is not in new resuts **/
+            if(!foundInNewArray) {
+
+              if(previousUserInventory[i].get("status") == 0) {
+                previousUserInventory[i].set("status", -1);
+                objectsToSave.push(previousUserInventory[i]);
+              }
+              else if(previousUserInventory[i].get("status") == 1)
+                objectsToDestroy.push(previousUserInventory[i]);
+              else if(previousUserInventory[i].get("status") == -1)
+                objectsToSave.push(previousUserInventory[i]);
+            }
+            else // if we found the element in the loop above (just change the variable back to false)
+              foundInNewArray = false;
           }
 
-          var objectsToSave = [];
+
           var userFoodItemSubclass = Parse.Object.extend("UserFoodItem");
           for(var i=0; i<foodItemsFound.length; i++) {
             var userFoodItem = new userFoodItemSubclass();
@@ -368,7 +394,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
 
             userFoodItem.set("foodItem", foodItemPointer);
             userFoodItem.set("user", userPointer);
-            userFoodItem.set("probability", proba); // TODO
+            userFoodItem.set("probability", proba*100); // TODO
             objectsToSave.push(userFoodItem);
           }
 
@@ -376,7 +402,17 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
             useMasterKey: true,
             success: function(succ) {
               console.log("Successfully saved " + objectsToSave.length + " IDs");
-              res.success("done");
+              Parse.Object.DestroyAll(objectsToDestroy, {
+                useMasterKey: true,
+                success: function(succ) {
+                  console.log("Successfully destroyed " + objectsToDestroy.length + " IDs");
+                  res.success(succ);
+                },
+                error: function(error) {
+                  console.log("error while destroying from DB");
+                  res.error(error);
+                }
+              });
             },
             error: function(error) {
               console.log("error while saving to DB");
