@@ -403,17 +403,23 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
             useMasterKey: true,
             success: function(succ) {
               console.log("Successfully saved " + objectsToSave.length + " IDs");
-              Parse.Object.DestroyAll(objectsToDestroy, {
-                useMasterKey: true,
-                success: function(succ) {
-                  console.log("Successfully destroyed " + objectsToDestroy.length + " IDs");
-                  res.success(succ);
-                },
-                error: function(error) {
-                  console.log("error while destroying from DB");
-                  res.error(error);
-                }
-              });
+              if(objectsToDestroy.length != 0) {
+                Parse.Object.DestroyAll(objectsToDestroy, {
+                  useMasterKey: true,
+                  success: function(succ) {
+                    console.log("Successfully destroyed " + objectsToDestroy.length + " IDs");
+                    res.success(succ);
+                  },
+                  error: function(error) {
+                    console.log("error while destroying from DB");
+                    res.error(error);
+                  }
+                });
+              }
+              else {
+                console.log("Not deleting anything");
+                res.success(succ);
+              }
             },
             error: function(error) {
               console.log("error while saving to DB");
