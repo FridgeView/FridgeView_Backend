@@ -404,6 +404,7 @@ Parse.Cloud.define("saveToUsersFoodItem", function(req, res) {
             success: function(succ) {
               console.log("Successfully saved " + objectsToSave.length + " IDs to UserFoodItem");
               if(objectsToDestroy.length != 0) {
+                console.log("Attempting to destroy " + objectsToDestroy.length + " objects");
                 Parse.Object.DestroyAll(objectsToDestroy, {
                   useMasterKey: true,
                   success: function(succ) {
