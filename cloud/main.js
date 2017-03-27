@@ -454,7 +454,7 @@ Parse.Cloud.define("changeItemsToStatus0", function(req, res) {
   query.find({
     success: function(objectsToModif) {
       for(var i=0; i<objectsToModif.length; i++) {
-        objectsToModif.set("status", 0);
+        objectsToModif[i].set("status", 0);
       }
       Parse.Object.saveAll(objectsToModif, {
         useMasterKey: true,
@@ -499,3 +499,9 @@ Parse.Cloud.define("deleteItems", function(req, res) {
     }
   });
 });
+
+Parse.Cloud.define("addUserItem", function(req, res) {
+  var query = new Parse.Query("FoodItem");
+
+  query.equalTo()
+})
