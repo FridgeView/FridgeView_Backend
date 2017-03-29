@@ -503,5 +503,50 @@ Parse.Cloud.define("deleteItems", function(req, res) {
 Parse.Cloud.define("addUserItem", function(req, res) {
   var query = new Parse.Query("FoodItem");
 
-  query.equalTo()
-})
+  query.equalTo("foodName", req.params.item);
+  query.find({
+    success: function(objectFound) {
+      var objectsToSave = [];
+      if(objectFound.length == 0) {
+        console.log("Object with name " + req.params.item + " was not found in FoodItem");
+
+      }
+    },
+    error: function(err) {
+
+    }
+  });
+});
+
+
+Parse.Cloud.define("", function(req, res) {
+  var query = new Parse.Query("User");
+
+  query.equalTo("objectId", req.params.userId);
+  query.find({
+    success: function(userFound) {
+      if(userFound.length != 1) {
+        console.log("WARNING: multiple/no user found for given ID!! This should not happen");
+      }
+
+      var centralHubPtr = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubId}
+      userFound.set("defaultCentralHub", centralHubPtr);
+
+      Parse.Object.save(userFound, {
+        useMasterKey: true,
+        success: function(succ) {
+          console.log("Successfully saved Item in User Collection")
+          res.success(succ);
+        },
+        error: function(err) {
+          console.log("Error while saving to User Collection");
+          res.error(err);
+        }
+      });
+    },
+    error: function(err) {
+      console.log("Error while querying the User Collection")
+      res.error(err);
+    }
+  });
+});
