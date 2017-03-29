@@ -519,7 +519,7 @@ Parse.Cloud.define("addUserItem", function(req, res) {
 });
 
 
-Parse.Cloud.define("", function(req, res) {
+Parse.Cloud.define("addPtrToCentralHub", function(req, res) {
   var query = new Parse.Query("User");
 
   query.equalTo("objectId", req.params.userId);
