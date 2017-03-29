@@ -503,6 +503,8 @@ Parse.Cloud.define("deleteItems", function(req, res) {
 Parse.Cloud.define("addUserItem", function(req, res) {
   var query = new Parse.Query("FoodItem");
 
+  var userFoodItemSubclass = Parse.Object.extend("UserFoodItem");
+
   query.equalTo("foodName", req.params.item);
   query.find({
     success: function(objectFound) {
@@ -510,14 +512,76 @@ Parse.Cloud.define("addUserItem", function(req, res) {
       if(objectFound.length == 0) {
         console.log("Object with name " + req.params.item + " was not found in FoodItem");
 
+        // create dummy entry in FoodItem
+        var foodItemSubclass = Parse.Object.extend("FoodItem");
+        var newFoodItem = new foodItemSubclass();
+
+        newFoodItem.set("clarifaiID", "DUMMY");
+        newFoodItem.set("foodName", req.params.item);
+
+        Parse.Cloud.save(newFoodItem, {
+          useMasterKey: true,
+          success: function(succ) {
+            console.log("Successfully created DUMMY entry in FoodItem");
+            // create new entry in UserFoodItem
+            var newUserFoodItem = new userFoodItemSubclass();
+            var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: newFoodItem.objectId}
+            var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
+
+            newUserFoodItem.set("probability", 1);
+            newUserFoodItem.set("status", 0);
+            newUserFoodItem.set("user", userPointer);
+            newUserFoodItem.set("foodItem", foodItemPtr);
+
+            Parse.Cloud.save(newUserFoodItem, {
+              useMasterKey: true,
+              success: function(success) {
+                console.log("Successfully saved new item to UserFoodItem");
+                res.success(success);
+              },
+              error: function(error) {
+                console.log("Error while saving to UserFoodItem through DUMMY");
+                res.error(error);
+              }
+            });
+          },
+          error: function(err) {
+            console.log("Error while creating DUMMY entry in FoodItem");
+            res.error(err);
+          }
+        });
+      }
+      else { // if an object was found
+
+        var newUserFoodItem = new userFoodItemSubclass();
+        var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: objectFound[0].objectId}
+        var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
+
+        newUserFoodItem.set("probability", 1);
+        newUserFoodItem.set("status", 0);
+        newUserFoodItem.set("user", userPointer);
+        newUserFoodItem.set("foodItem", foodItemPtr);
+
+        Parse.Cloud.save(newUserFoodItem, {
+          useMasterKey: true,
+          success: function(success) {
+            console.log("Successfully saved new item to UserFoodItem");
+            res.success(success);
+          },
+          error: function(error) {
+            console.log("Error while saving to UserFoodItem through DUMMY");
+            res.error(error);
+          }
+        });
       }
     },
     error: function(err) {
 
+      console.log("Erorr while querying FoodItem to search for name");
+      res.error(err);
     }
   });
 });
-
 
 Parse.Cloud.define("addPtrToCentralHub", function(req, res) {
   var query = new Parse.Query("User");
@@ -530,9 +594,9 @@ Parse.Cloud.define("addPtrToCentralHub", function(req, res) {
       }
 
       var centralHubPtr = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubId}
-      userFound.set("defaultCentralHub", centralHubPtr);
+      userFound[0].set("defaultCentralHub", centralHubPtr);
 
-      Parse.Object.save(userFound, {
+      Parse.Object.save(userFound[0], {
         useMasterKey: true,
         success: function(succ) {
           console.log("Successfully saved Item in User Collection")
