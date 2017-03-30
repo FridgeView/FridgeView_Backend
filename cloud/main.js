@@ -505,6 +505,8 @@ Parse.Cloud.define("addUserItem", function(req, res) {
 
   var userFoodItemSubclass = Parse.Object.extend("UserFoodItem");
 
+  //TODO: santatize user input (i.e. lower case only)
+
   query.equalTo("foodName", req.params.item);
   query.find({
     success: function(objectFound) {
@@ -528,12 +530,13 @@ Parse.Cloud.define("addUserItem", function(req, res) {
             var newUserFoodItem = new userFoodItemSubclass();
             var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: newFoodItem.objectId}
             var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
-
+            console.log("OK FOR POINTER DECS");
             newUserFoodItem.set("probability", 1);
             newUserFoodItem.set("status", 0);
             newUserFoodItem.set("user", userPointer);
             newUserFoodItem.set("foodItem", foodItemPtr);
             objectsToSave.push(newUserFoodItem);
+            console.log("ABOUT TO SAVE!! OMG!!!");
             Parse.Cloud.saveAll(objectsToSave, {
               useMasterKey: true,
               success: function(success) {
@@ -554,11 +557,12 @@ Parse.Cloud.define("addUserItem", function(req, res) {
       }
       else { // if an object was found
 
+        console.log("Found item in FoodItem");
         var newUserFoodItem = new userFoodItemSubclass();
         var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: objectFound[0].objectId}
         var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
 
-        newUserFoodItem.set("probability", 1);
+        newUserFoodItem.set("probability", 100);
         newUserFoodItem.set("status", 0);
         newUserFoodItem.set("user", userPointer);
         newUserFoodItem.set("foodItem", foodItemPtr);
