@@ -528,7 +528,7 @@ Parse.Cloud.define("addUserItem", function(req, res) {
             console.log("Successfully created DUMMY entry in FoodItem");
             // create new entry in UserFoodItem
             var newUserFoodItem = new userFoodItemSubclass();
-            var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: newFoodItem.get("objectId")}
+            var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: newFoodItem.id}
             var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
             console.log("OK FOR POINTER DECS");
             newUserFoodItem.set("probability", 1);
@@ -559,10 +559,7 @@ Parse.Cloud.define("addUserItem", function(req, res) {
 
         console.log("Found item in FoodItem");
         var newUserFoodItem = new userFoodItemSubclass();
-        console.log(objectFound[0]);
-        console.log(objectFound[0].id);
-        console.log(objectFound[0].get("id"));
-        var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: objectFound[0].get("id")}
+        var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: objectFound[0].id}
         var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
         
 
