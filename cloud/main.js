@@ -518,8 +518,9 @@ Parse.Cloud.define("addUserItem", function(req, res) {
 
         newFoodItem.set("clarifaiID", "DUMMY");
         newFoodItem.set("foodName", req.params.item);
-
-        Parse.Cloud.save(newFoodItem, {
+        var addObj = [];
+        addObj.push(newFoodItem);
+        Parse.Cloud.saveAll(addObj, {
           useMasterKey: true,
           success: function(succ) {
             console.log("Successfully created DUMMY entry in FoodItem");
@@ -528,12 +529,12 @@ Parse.Cloud.define("addUserItem", function(req, res) {
             var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: newFoodItem.objectId}
             var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
 
-            newUserFoodItem.set("probability", 100);
+            newUserFoodItem.set("probability", 1);
             newUserFoodItem.set("status", 0);
             newUserFoodItem.set("user", userPointer);
             newUserFoodItem.set("foodItem", foodItemPtr);
-
-            Parse.Cloud.save(newUserFoodItem, {
+            objectsToSave.push(newUserFoodItem);
+            Parse.Cloud.saveAll(objectsToSave, {
               useMasterKey: true,
               success: function(success) {
                 console.log("Successfully saved new item to UserFoodItem");
