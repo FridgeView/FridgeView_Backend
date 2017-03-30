@@ -559,8 +559,11 @@ Parse.Cloud.define("addUserItem", function(req, res) {
 
         console.log("Found item in FoodItem");
         var newUserFoodItem = new userFoodItemSubclass();
+        console.log("OK1");
         var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: objectFound[0].objectId}
+        console.log("OK2");
         var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
+        console.log("OK3");
 
         newUserFoodItem.set("probability", 100);
         newUserFoodItem.set("status", 0);
