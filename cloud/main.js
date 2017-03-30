@@ -531,7 +531,7 @@ Parse.Cloud.define("addUserItem", function(req, res) {
             var foodItemPtr = {__type: 'Pointer', className: 'FoodItem', objectId: newFoodItem.id}
             var userPointer = {__type: 'Pointer', className: '_User', objectId: req.params.userID}
             console.log("OK FOR POINTER DECS");
-            newUserFoodItem.set("probability", 1);
+            newUserFoodItem.set("probability", 100);
             newUserFoodItem.set("status", 0);
             newUserFoodItem.set("user", userPointer);
             newUserFoodItem.set("foodItem", foodItemPtr);
