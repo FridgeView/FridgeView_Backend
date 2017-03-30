@@ -596,7 +596,7 @@ Parse.Cloud.define("addPtrToCentralHub", function(req, res) {
       var centralHubPtr = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubId}
       userFound[0].set("defaultCentralHub", centralHubPtr);
 
-      Parse.Object.save(userFound[0], {
+      Parse.Object.saveAll(userFound, {
         useMasterKey: true,
         success: function(succ) {
           console.log("Successfully saved Item in User Collection")
