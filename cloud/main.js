@@ -590,8 +590,8 @@ Parse.Cloud.define("addUserItem", function(req, res) {
 });
 
 Parse.Cloud.define("addPtrToCentralHub", function(req, res) {
+  var objectsToSave = []
   var query = new Parse.Query("User");
-
   query.equalTo("objectId", req.params.userId);
   query.find({
     success: function(userFound) {
@@ -601,18 +601,38 @@ Parse.Cloud.define("addPtrToCentralHub", function(req, res) {
 
       var centralHubPtr = {__type: 'Pointer', className: 'CentralHub', objectId: req.params.centralHubId}
       userFound[0].set("defaultCentralHub", centralHubPtr);
+      objectsToSave.push(userFound[0])
 
-      Parse.Object.saveAll(userFound, {
-        useMasterKey: true,
-        success: function(succ) {
-          console.log("Successfully saved Item in User Collection")
-          res.success(succ);
-        },
-        error: function(err) {
-          console.log("Error while saving to User Collection");
-          res.error(err);
+      var centralHubQuery = new Parse.Query("CentralHub")
+      centralHubQuery.equalTo("objectId", req.params.centralHubId)
+      centralHubQuery.find({
+        success:function(centralHubs) {
+          var centralHub = centralHubs[0]
+
+          var userPtr = {__type: 'Pointer', className: '_User', objectId: req.params.userId}
+          centralHub.set("user", userPtr);
+          objectsToSave.push(centralHub)
+
+          Parse.Object.saveAll(objectsToSave, {
+          useMasterKey: true,
+          success: function(succ) {
+            console.log("Successfully saved Item in User Collection")
+            res.success(succ);
+          },
+          error: function(err) {
+            console.log("Error while saving to User Collection");
+            res.error(err);
+          }
+        });
+        }, 
+        error:function(error) {
+          console.log("error querying for centralHub")
+          res.error(error)
         }
-      });
+
+      }) 
+
+     
     },
     error: function(err) {
       console.log("Error while querying the User Collection")
